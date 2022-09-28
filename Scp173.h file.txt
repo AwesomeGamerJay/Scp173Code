@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ScpSite81Character.h"
+#include "ScpSite19Character.h"
 #include "Scp173.generated.h"
 
 UCLASS()
@@ -38,11 +38,11 @@ private:
 
 	/* Make a variable for the spawned actor */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	AScpSite81Character* SpawnedActor;
+	AScpSite19Character* SpawnedActor;
 
 	/* Make a variable so we let virtual studio know the actor to spawn */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Properties", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AScpSite81Character> ActorToSpawn;
+	TSubclassOf<AScpSite19Character> ActorToSpawn;
 	
 	/* Make a bool that tells us if we can kill or not. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -59,7 +59,7 @@ public:
 
 	/* Returns the spawned actor variable so that we can get it from the character code. */
 	UFUNCTION(BlueprintCallable)
-	class AScpSite81Character* GetSpawnedActor() { return SpawnedActor; }
+	class AScpSite19Character* GetSpawnedActor() { return SpawnedActor; }
 
 	/* Returns the bool CanKill */
 	FORCEINLINE bool GetCanKill() const { return bCanKill; }
