@@ -7,7 +7,7 @@
 // Sets default values
 AScp173::AScp173()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	bCanKill = false;
@@ -45,10 +45,11 @@ void AScp173::ChangeCanKill()
 
 void AScp173::SpawnPlayer(AScpSite19Character* Actor, FVector SpawnLocation, FRotator SpawnRotation)
 {
-	AScpSite19Character* ActorReference = Cast<AScpSite81Character>(Actor); // Cast to the actor.
+	AScpSite19Character* ActorReference = Cast<AScpSite19Character>(Actor); // Cast to the actor.
 	if (ActorReference != nullptr) // If the cast worked.
 	{
 		MoveToLocation = ActorReference->GetActorLocation(); // Set the move to location variable to the player's location.
+		MoveToLocation.Z = this->GetActorLocation().Z;
 
 		this->SetActorLocation(MoveToLocation);
 		FActorSpawnParameters SpawnParams;
