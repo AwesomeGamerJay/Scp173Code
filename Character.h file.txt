@@ -100,7 +100,7 @@ private:
 
 	/* This variable will be used once we respawn the actor */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	class AScpSite81Character* SpawnedActor;
+	class AScpSite19Character* SpawnedActor;
 
 	/* This bool will make sure Scp-173 can kill when we want it to kill. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
