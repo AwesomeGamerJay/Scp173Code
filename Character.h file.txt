@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "ScpSite81Character.generated.h"
+#include "ScpSite19Character.generated.h"
 
 class UInputComponent;
 class USkeletalMeshComponent;
@@ -15,7 +15,7 @@ class UAnimMontage;
 class USoundBase;
 
 UCLASS(config=Game)
-class AScpSite81Character : public ACharacter
+class AScpSite19Character : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -24,7 +24,7 @@ class AScpSite81Character : public ACharacter
 	UCameraComponent* FirstPersonCameraComponent;
 
 public:
-	AScpSite81Character();
+	AScpSite19Character();
 
 protected:
 	virtual void BeginPlay() override;
