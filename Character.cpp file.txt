@@ -1,0 +1,180 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
+#include "ScpSite81Character.h"
+#include "ScpSite81Projectile.h"
+#include "Animation/AnimInstance.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/InputComponent.h"
+#include "GameFramework/InputSettings.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "MotionControllerComponent.h"
+#include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
+#include "Scp173.h"
+#include "kismet/GameplayStatics.h"
+#include "NavigationSystem.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
+
+//////////////////////////////////////////////////////////////////////////
+// AScpSite81Character
+
+AScpSite81Character::AScpSite81Character()
+{
+	// Set size for collision capsule
+	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
+
+	// set our turn rates for input
+	BaseTurnRate = 45.f;
+	BaseLookUpRate = 45.f;
+
+	// Create a CameraComponent	
+	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
+	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f)); // Position the camera
+	FirstPersonCameraComponent->bUsePawnControlRotation = true;
+
+	SpawnLocation = FVector(-351.0f, 99.0f, 265.0f);
+	SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
+}
+
+void AScpSite81Character::BeginPlay()
+{
+	// Call the base class  
+	Super::BeginPlay();
+
+	Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AScp173::StaticClass()); // Get Scp-173 from the world and set it to the Actor variable we created
+
+	if (Actor) // Check if the Actor variable is valid
+	{
+		Scp173 = Cast<AScp173>(Actor); // Cast to Scp-173.
+	}
+	else // Get Actor Of Class failed. Try it again then return it.
+	{
+		Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AScp173::StaticClass());
+		return;
+	}
+}
+
+void AScpSite81Character::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	/* Call our check if in view of players function */
+	CheckIfInViewOfPlayers();
+}
+
+void AScpSite81Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+{
+	// set up gameplay key bindings
+	check(PlayerInputComponent);
+
+	// Bind jump events
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	// Bind movement events
+	PlayerInputComponent->BindAxis("MoveForward", this, &AScpSite81Character::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AScpSite81Character::MoveRight);
+
+	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
+	// "turn" handles devices that provide an absolute delta, such as a mouse.
+	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("TurnRate", this, &AScpSite81Character::TurnAtRate);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &AScpSite81Character::LookUpAtRate);
+}
+
+void AScpSite81Character::MoveForward(float Value)
+{
+	if (Value != 0.0f)
+	{
+		// add movement in that direction
+		AddMovementInput(GetActorForwardVector(), Value);
+	}
+}
+
+void AScpSite81Character::MoveRight(float Value)
+{
+	if (Value != 0.0f)
+	{
+		// add movement in that direction
+		AddMovementInput(GetActorRightVector(), Value);
+	}
+}
+
+void AScpSite81Character::TurnAtRate(float Rate)
+{
+	// calculate delta for this frame from the rate information
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AScpSite81Character::LookUpAtRate(float Rate)
+{
+	// calculate delta for this frame from the rate information
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AScpSite81Character::CheckIfInViewOfPlayers()
+{
+	CanKill = Scp173->GetCanKill(); // Check if Scp-173 can kill
+	if (CanKill) // Can kill is true
+	{
+		if (Scp173) // Check if the cast worked.
+		{
+			if (Scp173->WasRecentlyRendered(0.01f)) // Check if the actor was recently rendered (check if it was on screen).
+			{
+				FVector Start = FirstPersonCameraComponent->GetComponentLocation(); // Set the start of the line trace to our camera's location.
+				FVector End = (Start + FirstPersonCameraComponent->GetForwardVector()) * 50'000.f; // Make the Line trace's direction go straight and make it go 50,000 studs forward (a long distance).
+
+				GetWorld()->LineTraceSingleByChannel(Scp173LineTrace, Start, End, ECollisionChannel::ECC_Visibility); // Make a line trace starting at the camera's location and shoot forward 50,000 studs forward.
+				if (Scp173LineTrace.bBlockingHit) // If the line trace hit an object then...
+				{
+					if (Scp173LineTrace.GetActor() == Scp173) // Check if the player is looking at Scp-173
+					{
+						// Player is looking at Scp-173, do nothing.
+					}
+					else // The player is not looking at Scp-173, kill the player.
+					{
+						SpawnPlayer(); // Respawn the player at the location.
+					}
+
+				}
+			}
+		}
+		else // The cast failed, recast it and return it.
+		{
+			Scp173 = Cast<AScp173>(Actor);
+		}
+	}
+}
+
+void AScpSite81Character::SpawnPlayer()
+{
+	if (Scp173) // Check if the Scp-173 variable exists and is not null
+	{
+		Scp173->SpawnPlayer(this, SpawnLocation, SpawnRotation); // Call the spawn player function from Scp-173
+		SpawnedActor = Cast<AScpSite81Character>(Scp173->GetSpawnedActor()); // Cast to the actor we just spawned in and set our SpawnedActor variable to our spawned actor.
+		if (SpawnedActor) // If the actor successfully spawned...
+		{
+			PlayerController = Cast<APlayerController>(GetController()); // Get the player's controller
+			if (PlayerController) // Check if the cast worked.
+			{
+				PlayerController->Possess(SpawnedActor); // If the cast worked, possess the new actor we spawned.
+				this->Destroy(); // Destroy our current actor.
+			}
+			else // The cast to the player's controller failed, recast it and return it.
+			{
+				PlayerController = Cast<APlayerController>(Scp173->GetSpawnedActor());
+				return;
+			}
+		}
+	}
+	else
+	{
+		Scp173 = Cast<AScp173>(Actor); // Cast to Scp-173 failed, recast it and return it.
+		return;
+	}
+}

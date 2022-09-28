@@ -1,0 +1,66 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "ScpSite81Character.h"
+#include "Scp173.generated.h"
+
+UCLASS()
+class SCPSITE81_API AScp173 : public AActor
+{
+	GENERATED_BODY()
+	
+public:	
+	// Sets default values for this actor's properties
+	AScp173();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	FTimerHandle CanKillTimerHandle;
+	FTimerHandle ChangeCanKillTimerHandle;
+	FTimerHandle ChangeCanMoveTimerHandle;
+	FTimerHandle ChangeShouldKillTimerHandle;
+
+	void ChangeCanKill();
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;;
+
+private:
+
+	/* The scp mesh */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* Scp173Mesh;
+
+	/* Make a variable for the spawned actor */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	AScpSite81Character* SpawnedActor;
+
+	/* Make a variable so we let virtual studio know the actor to spawn */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Properties", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AScpSite81Character> ActorToSpawn;
+	
+	/* Make a bool that tells us if we can kill or not. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bCanKill;
+
+	/* Make a FVector (a location in 3D space) so we know where to move when the player is killed. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FVector MoveToLocation;
+
+public:
+	/* Spawn player function, we'll call this when we need to respawn the player. */
+	UFUNCTION(BlueprintCallable)
+	void SpawnPlayer(AScpSite81Character* Actor, FVector SpawnLocation, FRotator SpawnRotation);
+
+	/* Returns the spawned actor variable so that we can get it from the character code. */
+	UFUNCTION(BlueprintCallable)
+	class AScpSite81Character* GetSpawnedActor() { return SpawnedActor; }
+
+	/* Returns the bool CanKill */
+	FORCEINLINE bool GetCanKill() const { return bCanKill; }
+};

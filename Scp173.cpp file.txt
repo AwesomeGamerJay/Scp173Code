@@ -1,0 +1,61 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Scp173.h"
+#include "ScpSite81Character.h"
+#include "NavigationSystem.h"
+
+// Sets default values
+AScp173::AScp173()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	bCanKill = false;
+
+	Scp173Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Scp173Mesh")); // Creates the Scp-173 mesh
+}
+
+// Called when the game starts or when spawned
+void AScp173::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GetWorldTimerManager().SetTimer(CanKillTimerHandle, this, &AScp173::ChangeCanKill, 2.5f); // Set a timer, after 2.5 seconds, change can kill to true.
+}
+
+// Called every frame
+void AScp173::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void AScp173::ChangeCanKill()
+{
+	if (bCanKill == false) // Check if Scp-173 can kill the player(s)
+	{
+		bCanKill = true; // Make it so Scp-173 can kill the player(s)
+		UE_LOG(LogTemp, Warning, TEXT("Scp-173 can kill the player."));
+	}
+	else // Scp-173 can kill the player(s)
+	{
+		bCanKill = false; // Make it so Scp-173 can't kill the player(s)
+		UE_LOG(LogTemp, Warning, TEXT("Scp-173 can't kill the player."));
+	}
+}
+
+void AScp173::SpawnPlayer(AScpSite81Character* Actor, FVector SpawnLocation, FRotator SpawnRotation)
+{
+	AScpSite81Character* ActorReference = Cast<AScpSite81Character>(Actor); // Cast to the actor.
+	if (ActorReference != nullptr) // If the cast worked.
+	{
+		MoveToLocation = ActorReference->GetActorLocation(); // Set the move to location variable to the player's location.
+
+		this->SetActorLocation(MoveToLocation);
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.bNoFail;
+		SpawnedActor = GetWorld()->SpawnActor<AScpSite81Character>(ActorReference->StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		ChangeCanKill();
+		GetWorldTimerManager().SetTimer(ChangeCanKillTimerHandle, this, &AScp173::ChangeCanKill, 5.f);
+	}
+}
