@@ -38,7 +38,7 @@ private:
 
 	/* Make a variable for the spawned actor */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	AScpSite19Character* SpawnedActor;
+	class AActor* SpawnedActor;
 
 	/* Make a variable so we let virtual studio know the actor to spawn */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Properties", meta = (AllowPrivateAccess = "true"))
