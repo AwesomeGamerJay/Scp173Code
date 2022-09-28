@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "ScpSite81Character.h"
-#include "ScpSite81Projectile.h"
+#include "ScpSite19Character.h"
+#include "ScpSite19Projectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -20,7 +20,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 //////////////////////////////////////////////////////////////////////////
 // AScpSite81Character
 
-AScpSite81Character::AScpSite81Character()
+AScpSite19Character::AScpSite19Character()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
@@ -39,7 +39,7 @@ AScpSite81Character::AScpSite81Character()
 	SpawnRotation = FRotator(0.0f, 0.0f, 0.0f);
 }
 
-void AScpSite81Character::BeginPlay()
+void AScpSite19Character::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
@@ -57,7 +57,7 @@ void AScpSite81Character::BeginPlay()
 	}
 }
 
-void AScpSite81Character::Tick(float DeltaTime)
+void AScpSite19Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -65,7 +65,7 @@ void AScpSite81Character::Tick(float DeltaTime)
 	CheckIfInViewOfPlayers();
 }
 
-void AScpSite81Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+void AScpSite19Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// set up gameplay key bindings
 	check(PlayerInputComponent);
@@ -75,19 +75,19 @@ void AScpSite81Character::SetupPlayerInputComponent(class UInputComponent* Playe
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind movement events
-	PlayerInputComponent->BindAxis("MoveForward", this, &AScpSite81Character::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AScpSite81Character::MoveRight);
+	PlayerInputComponent->BindAxis("MoveForward", this, &AScpSite19Character::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AScpSite19Character::MoveRight);
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &AScpSite81Character::TurnAtRate);
+	PlayerInputComponent->BindAxis("TurnRate", this, &AScpSite19Character::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &AScpSite81Character::LookUpAtRate);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &AScpSite19Character::LookUpAtRate);
 }
 
-void AScpSite81Character::MoveForward(float Value)
+void AScpSite19Character::MoveForward(float Value)
 {
 	if (Value != 0.0f)
 	{
@@ -96,7 +96,7 @@ void AScpSite81Character::MoveForward(float Value)
 	}
 }
 
-void AScpSite81Character::MoveRight(float Value)
+void AScpSite19Character::MoveRight(float Value)
 {
 	if (Value != 0.0f)
 	{
@@ -105,19 +105,19 @@ void AScpSite81Character::MoveRight(float Value)
 	}
 }
 
-void AScpSite81Character::TurnAtRate(float Rate)
+void AScpSite19Character::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AScpSite81Character::LookUpAtRate(float Rate)
+void AScpSite19Character::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AScpSite81Character::CheckIfInViewOfPlayers()
+void AScpSite19Character::CheckIfInViewOfPlayers()
 {
 	CanKill = Scp173->GetCanKill(); // Check if Scp-173 can kill
 	if (CanKill) // Can kill is true
@@ -151,12 +151,12 @@ void AScpSite81Character::CheckIfInViewOfPlayers()
 	}
 }
 
-void AScpSite81Character::SpawnPlayer()
+void AScpSite19Character::SpawnPlayer()
 {
 	if (Scp173) // Check if the Scp-173 variable exists and is not null
 	{
 		Scp173->SpawnPlayer(this, SpawnLocation, SpawnRotation); // Call the spawn player function from Scp-173
-		SpawnedActor = Cast<AScpSite81Character>(Scp173->GetSpawnedActor()); // Cast to the actor we just spawned in and set our SpawnedActor variable to our spawned actor.
+		SpawnedActor = Cast<AScpSite19Character>(Scp173->GetSpawnedActor()); // Cast to the actor we just spawned in and set our SpawnedActor variable to our spawned actor.
 		if (SpawnedActor) // If the actor successfully spawned...
 		{
 			PlayerController = Cast<APlayerController>(GetController()); // Get the player's controller
