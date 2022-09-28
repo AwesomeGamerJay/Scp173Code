@@ -2,8 +2,7 @@
 
 
 #include "Scp173.h"
-#include "ScpSite81Character.h"
-#include "NavigationSystem.h"
+#include "ScpSite19Character.h"
 
 // Sets default values
 AScp173::AScp173()
@@ -44,9 +43,9 @@ void AScp173::ChangeCanKill()
 	}
 }
 
-void AScp173::SpawnPlayer(AScpSite81Character* Actor, FVector SpawnLocation, FRotator SpawnRotation)
+void AScp173::SpawnPlayer(AScpSite19Character* Actor, FVector SpawnLocation, FRotator SpawnRotation)
 {
-	AScpSite81Character* ActorReference = Cast<AScpSite81Character>(Actor); // Cast to the actor.
+	AScpSite19Character* ActorReference = Cast<AScpSite81Character>(Actor); // Cast to the actor.
 	if (ActorReference != nullptr) // If the cast worked.
 	{
 		MoveToLocation = ActorReference->GetActorLocation(); // Set the move to location variable to the player's location.
@@ -54,7 +53,7 @@ void AScp173::SpawnPlayer(AScpSite81Character* Actor, FVector SpawnLocation, FRo
 		this->SetActorLocation(MoveToLocation);
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.bNoFail;
-		SpawnedActor = GetWorld()->SpawnActor<AScpSite81Character>(ActorReference->StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		SpawnedActor = GetWorld()->SpawnActor<AScpSite19Character>(ActorReference->StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
 		ChangeCanKill();
 		GetWorldTimerManager().SetTimer(ChangeCanKillTimerHandle, this, &AScp173::ChangeCanKill, 5.f);
 	}
